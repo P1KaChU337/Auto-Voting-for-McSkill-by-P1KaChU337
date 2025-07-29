@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: radial-gradient(ellipse at top left, #1f1f28, #0d0d13);
+        color: #f0f0f0;
+        padding: 20px;
+        width: 280px;
+        border-radius: 16px;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), 0 0 40px rgba(0, 200, 255, 0.1);
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      label {
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 10px;
+        display: block;
+        color: #a0a0a0;
+        text-shadow: 0 0 2px rgba(0, 255, 255, 0.2);
+      }
+
+      input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 10px;
+        background: #22232b;
+        color: #e0e0e0;
+        font-size: 14px;
+        outline: none;
+        transition: box-shadow 0.3s ease;
+        box-shadow: inset 0 0 4px #00ffe03b;
+      }
+
+      input:focus, select:focus {
+        box-shadow: 0 0 8px #00f2ffb3;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00d2ff, #3a47d5);
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        box-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, #3a47d5, #00ffc3);
+        box-shadow: 0 0 16px rgba(0, 255, 255, 0.6);
+      }
+
+      #resetAll {
+        margin-top: 10px;
+        background: linear-gradient(135deg, #ff5c5c, #e60000);
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(255, 50, 50, 0.6);
+        transition: all 0.3s ease;
+      }
+
+    #resetAll:hover {
+      background: linear-gradient(135deg, #ff7373, #cc0000);
+      box-shadow: 0 0 15px rgba(255, 70, 70, 0.9);
+      transform: scale(1.03);
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #lastVote {
+      margin-top: 15px;
+      font-size: 12.5px;
+      color: #aaa;
+      text-align: center;
+      text-shadow: 0 0 2px rgba(0, 255, 255, 0.1);
+      animation: fadeIn 1s ease-in;
+    }
+
+    #nextVote {
+      margin-top: 15px;
+      font-size: 12.5px;
+      color: #aaa;
+      text-align: center;
+      text-shadow: 0 0 2px rgba(0, 255, 255, 0.1);
+      animation: fadeIn 1s ease-in;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 11px;
+      text-align: center;
+      color: #666;
+      text-shadow: 0 0 2px rgba(255, 255, 255, 0.05);
+      border-top: 1px solid #2a2a33;
+      padding-top: 8px;
+      opacity: 0.6;
+    }
+    </style>
+  </head>
+  <body>
+    <label>Никнейм:</label>
+    <input id="nickname" type="text" placeholder="Введите ник">
+
+    <label>Вход через:</label>
+    <select id="authType">
+      <option value="manual" selected>Ручной вход</option>
+      <option value="google">Google</option>
+      <option value="vk">VK</option>
+    </select>
+
+    <button id="save">Сохранить</button>
+    <button id="voteNow">Проголосовать сейчас</button>
+    <button id="resetAll">Сбросить всё</button>
+
+    <div id="lastVote">Последнее голосование: не найдено</div>
+    <div id="nextVote">Следующее голосование: не найдено</div>
+
+    <footer>AutoVoter v.1.1 by P1KaChU337</footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

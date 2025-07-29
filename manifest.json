@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "AutoVoter for McSkill by P1KaChU337",
+  "version": "1.1",
+  "description": "Автоматическое голосование на проекте McSkill. Поддержка Google, VK ID и ручного входа. \n Автор: P1KaChU337 \n Связаться со мной можно по: \n Discord: p1kachu337 \n VK: https://vk.com/p1kachu337",
+  "author": "P1KaChU337",
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": ["storage", "tabs", "scripting", "alarms"],
+  "host_permissions": [
+    "https://minecraft-servers.ru/*",
+    "https://id.vk.com/*",
+    "https://accounts.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+    "matches": ["https://minecraft-servers.ru/server/mcskill"],
+    "js": ["content_vote.js"],
+    "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://minecraft-servers.ru/*"],
+      "js": ["content_autoclose.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://id.vk.com/*"],
+      "js": ["content_vk.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://accounts.google.com/*"],
+      "js": ["content_google_auth.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
