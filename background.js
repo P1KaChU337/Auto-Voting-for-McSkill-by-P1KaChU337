@@ -1,5 +1,5 @@
 const VOTE_URL = "https://minecraft-servers.ru/server/mcskill";
-const DAY_MS = 24 * 60 * 60 * 1000;
+const DAY_MS = 12 * 60 * 60 * 1000;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.create("dailyVote", { periodInMinutes: 1 });

@@ -1,4 +1,4 @@
-const DAY_MS = 86_400_000;
+const DAY_MS = 43_200_000;
 function formatDate(ts) {
   const date = new Date(ts);
   const pad = n => n.toString().padStart(2, '0');
