@@ -1,5 +1,20 @@
 const VOTE_URL = "https://minecraft-servers.ru/server/mcskill";
-const DAY_MS = 12 * 60 * 60 * 1000;
+
+const MSK_OFFSET_MILLIS = 3 * 60 * 60 * 1000; // 3 часа (UTC+3)
+const VOTE_MINUTE_OFFSET = 5 * 60 * 1000; // 5 минут (00:05:00)
+const DAY_MILLIS = 24 * 60 * 60 * 1000; // 24 часа
+
+function getMskMidnightUtc(nowMillis) {
+    const nowMsk = nowMillis + MSK_OFFSET_MILLIS;
+    const mskMidnightMillis = nowMsk - (nowMsk % DAY_MILLIS);
+    return mskMidnightMillis - MSK_OFFSET_MILLIS;
+}
+
+function getTodayMskResetTime() {
+    const now = Date.now();
+    const mskMidnightUtc = getMskMidnightUtc(now);
+    return mskMidnightUtc + VOTE_MINUTE_OFFSET_MILLIS; 
+}
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ 
@@ -15,7 +30,9 @@ chrome.runtime.onStartup.addListener(() => {
     const last = data.lastVoteTime || 0;
     const isPaused = data.isPaused || false;
     
-    if (!isPaused && now - last >= DAY_MS) { 
+    const todayResetTime = getTodayMskResetTime();
+
+    if (!isPaused && last < todayResetTime) { 
       chrome.storage.local.set({ canVote: true });
     }
   });
@@ -35,19 +52,19 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       const now = Date.now();
       const last = data.lastVoteTime || 0;
       const isPaused = data.isPaused || false;
-
-      if (isPaused) {
-        console.log("Авто-голосование остановлено пользователем.");
+      
+      if (isPaused) { 
+        console.log("⏸ Автоматизация остановлена.");
         return; 
       }
 
-      if (now - last >= DAY_MS) {
-        chrome.storage.local.set({
-          canVote: true
-        });
+      const todayResetTime = getTodayMskResetTime();
+      
+      if (now >= todayResetTime && last < todayResetTime) { 
+        chrome.storage.local.set({ canVote: true });
         chrome.tabs.create({ url: VOTE_URL });
       } else {
-        console.log("Голосование уже было сегодня.");
+        console.log("Голосование уже было сегодня или еще не время (до 00:05:00 МСК).");
       }
     });
   }

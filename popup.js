@@ -1,8 +1,36 @@
-const DAY_MS = 43_200_000;
+// popup.js:
+const DAY_MS = 86_400_000; 
+const MSK_OFFSET_HOURS = 3;
+const VOTE_MINUTE_OFFSET = 5;
+const DAY_MILLIS = 24 * 60 * 60 * 1000;
+const MSK_OFFSET_MILLIS = 3 * 60 * 60 * 1000; 
+const VOTE_MINUTE_OFFSET_MILLIS = 5 * 60 * 1000; 
+
 function formatDate(ts) {
   const date = new Date(ts);
   const pad = n => n.toString().padStart(2, '0');
   return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function getMskMidnightUtc(nowMillis) {
+    const nowMsk = nowMillis + MSK_OFFSET_MILLIS;
+    const mskMidnightMillis = nowMsk - (nowMsk % DAY_MILLIS);
+    return mskMidnightMillis - MSK_OFFSET_MILLIS;
+}
+
+function getNextMskVoteTime(lastVote) {
+    const now = Date.now();
+
+    let resetTimeUtc = getMskMidnightUtc(now) + VOTE_MINUTE_OFFSET_MILLIS;
+
+    if (lastVote >= resetTimeUtc) {
+        resetTimeUtc += DAY_MILLIS;
+    } 
+    else if (now >= resetTimeUtc) {
+        resetTimeUtc += DAY_MILLIS;
+    }
+
+    return resetTimeUtc;
 }
 
 function updateStatus(isPaused) {
@@ -28,7 +56,8 @@ function updateLastVoteInfo() {
 
     if (lastVote) {
       div.textContent = "Последнее голосование: " + formatDate(lastVote);
-      const nextVote = lastVote + DAY_MS;
+      
+      const nextVote = getNextMskVoteTime(lastVote); 
       nextDiv.textContent = "Следующее голосование: " + formatDate(nextVote);
     } else {
       div.textContent = "Последнее голосование: не найдено";
@@ -61,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('stopVoting').addEventListener('click', () => {
-      chrome.storage.local.get(["isPaused", "lastVoteTime"], (data) => { // Считываем lastVoteTime для проверки
+      chrome.storage.local.get(["isPaused", "lastVoteTime"], (data) => { 
         const isCurrentlyPaused = data.isPaused !== undefined ? data.isPaused : false;
         const newPausedState = !isCurrentlyPaused;
 
@@ -69,13 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
           updateStatus(newPausedState);
 
           if (!newPausedState) {
-            // Если мы ВКЛЮЧАЕМ голосование (снимаем паузу)
             const now = Date.now();
             const last = data.lastVoteTime || 0;
-            const DAY_MS = 12 * 60 * 60 * 1000; // 12 часов
+            const todayResetTime = getMskMidnightUtc(now) + VOTE_MINUTE_OFFSET_MILLIS;
 
-            // Проверяем, пришло ли время голосовать, как это делает background.js
-            if (now - last >= DAY_MS) {
+            if (now >= todayResetTime && last < todayResetTime) {
               chrome.storage.local.set({ canVote: true }, () => {
                 chrome.tabs.create({ url: "https://minecraft-servers.ru/server/mcskill" });
               });
@@ -84,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
               alert('Авто-голосование включено. Следующее голосование по расписанию.');
             }
           } else {
-            // Если мы ОСТАНАВЛИВАЕМ голосование (ставим паузу)
             alert('Авто-голосование остановлено.');
           }
         });
@@ -107,4 +133,3 @@ document.getElementById('resetAll').addEventListener('click', () => {
     });
   }
 });
-
