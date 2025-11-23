@@ -1,6 +1,12 @@
-chrome.storage.local.get("canVote", ({ canVote }) => {
-  if (!canVote) {
-    console.log("⏸ Автоматизация отключена — ждем следующего таймера.");
+chrome.storage.local.get(["canVote", "isPaused", "authType"], ({ canVote, isPaused, authType }) => { // Добавили authType
+  
+  if (authType !== 'vk') {
+    console.log("❌ Авторизация через VK не выбрана. Скрипт остановлен.");
+    return;
+  }
+  
+  if (!canVote || isPaused) {
+    console.log("⏸ Автоматизация отключена или остановлена — ждем следующего таймера.");
     return;
   }
 

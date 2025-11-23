@@ -5,6 +5,21 @@ function formatDate(ts) {
   return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function updateStatus(isPaused) {
+  const div = document.getElementById("statusVote");
+  const stopButton = document.getElementById('stopVoting');
+
+  if (isPaused) {
+    div.innerHTML = "Авто-голосование: Остановлено";
+    stopButton.textContent = "Включить авто-голосование";
+    stopButton.classList.add('is-paused-btn'); 
+  } else {
+    div.innerHTML = "Авто-голосование: Активно";
+    stopButton.textContent = "Остановить голосование";
+    stopButton.classList.remove('is-paused-btn');
+  }
+}
+
 function updateLastVoteInfo() {
   chrome.storage.local.get("lastVoteTime", data => {
     const lastVote = data.lastVoteTime;
@@ -31,6 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateLastVoteInfo();
 
+  chrome.storage.local.get("isPaused", (data) => {
+    const isPaused = data.isPaused !== undefined ? data.isPaused : false;
+    updateStatus(isPaused);
+  });
+
 
   document.getElementById('save').addEventListener('click', () => {
     const nickname = document.getElementById('nickname').value.trim();
@@ -40,13 +60,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.getElementById('stopVoting').addEventListener('click', () => {
+      chrome.storage.local.get(["isPaused", "lastVoteTime"], (data) => { // Считываем lastVoteTime для проверки
+        const isCurrentlyPaused = data.isPaused !== undefined ? data.isPaused : false;
+        const newPausedState = !isCurrentlyPaused;
+
+        chrome.storage.local.set({ isPaused: newPausedState }, () => {
+          updateStatus(newPausedState);
+
+          if (!newPausedState) {
+            // Если мы ВКЛЮЧАЕМ голосование (снимаем паузу)
+            const now = Date.now();
+            const last = data.lastVoteTime || 0;
+            const DAY_MS = 12 * 60 * 60 * 1000; // 12 часов
+
+            // Проверяем, пришло ли время голосовать, как это делает background.js
+            if (now - last >= DAY_MS) {
+              chrome.storage.local.set({ canVote: true }, () => {
+                chrome.tabs.create({ url: "https://minecraft-servers.ru/server/mcskill" });
+              });
+              alert('Авто-голосование включено. Запускаю голосование сейчас.');
+            } else {
+              alert('Авто-голосование включено. Следующее голосование по расписанию.');
+            }
+          } else {
+            // Если мы ОСТАНАВЛИВАЕМ голосование (ставим паузу)
+            alert('Авто-голосование остановлено.');
+          }
+        });
+      });
+  });
 
   document.getElementById('voteNow').addEventListener('click', () => {
-    const now = Date.now();
-    chrome.storage.local.set({ lastVoteTime: now }, () => {
-      updateLastVoteInfo();
-      chrome.storage.local.set({ canVote: true });
-      chrome.tabs.create({ url: "https://minecraft-servers.ru/server/mcskill" });
+    chrome.storage.local.set({ canVote: true, isPaused: false }, () => {
+        updateStatus(false);
+        chrome.tabs.create({ url: "https://minecraft-servers.ru/server/mcskill" });
     });
   });
 });

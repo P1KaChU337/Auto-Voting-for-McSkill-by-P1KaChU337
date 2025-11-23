@@ -1,11 +1,19 @@
-chrome.storage.local.get("canVote", ({ canVote }) => {
-  if (!canVote) {
-    console.log("⏸ Автоматизация отключена — ждем следующего таймера.");
+chrome.storage.local.get(["canVote", "isPaused", "authType"], ({ canVote, isPaused, authType }) => {
+  
+  // Добавляем проверку: Если выбран не Google, прерываем выполнение
+  if (authType !== 'google') {
+    console.log("❌ Авторизация через Google не выбрана. Скрипт остановлен.");
+    return;
+  }
+  
+  if (!canVote || isPaused) { 
+    console.log("⏸ Автоматизация отключена или остановлена — ждем следующего таймера.");
     return;
   }
 
   startAutomation();
 });
+
 function startAutomation() {
   
   function waitForAccount(timeout = 10000) {

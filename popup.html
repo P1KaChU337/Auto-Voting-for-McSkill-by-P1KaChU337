@@ -106,6 +106,25 @@
         box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
       }
 
+      #stopVoting {
+        background: linear-gradient(90deg, #f6aa27, #f19c1b); /* Оранжевый фон по умолчанию */
+      }
+
+      #stopVoting:hover {
+        background: linear-gradient(90deg, #f19c1b, #f6aa27); /* Hover для Оранжевого */
+        box-shadow: 0 4px 16px rgba(239, 179, 68, 0.3);
+      }
+
+      #stopVoting.is-paused-btn {
+        background: linear-gradient(90deg, #63cc3a, #5cb405); /* Фиолетовый фон для ВКЛЮЧИТЬ */
+      }
+
+      #stopVoting.is-paused-btn:hover {
+        background: linear-gradient(90deg, #5cb405, #63cc3a); /* Hover для Фиолетового */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(120, 246, 92, 0.3);
+      }
+
       #resetAll {
         background: linear-gradient(90deg, #ef4444, #f87171);
       }
@@ -115,7 +134,7 @@
         box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
       }
 
-      #lastVote, #nextVote {
+      #lastVote, #nextVote, #statusVote {
         margin-top: 10px;
         font-size: 11px;
         color: #9ca3af;
@@ -157,12 +176,14 @@
 
     <button id="save">Сохранить</button>
     <button id="voteNow">Проголосовать сейчас</button>
+    <button id="stopVoting">Остановить голосование</button>
     <button id="resetAll">Сбросить всё</button>
 
+    <div id="statusVote">Авто-голосование: неизвестно</div>
     <div id="lastVote">Последнее голосование: не найдено</div>
     <div id="nextVote">Следующее голосование: не найдено</div>
 
-    <footer>AutoVoter v.1.1 by P1KaChU337</footer>
+    <footer>AutoVoter v.1.2 by P1KaChU337</footer>
 
     <script src="popup.js"></script>
   </body>

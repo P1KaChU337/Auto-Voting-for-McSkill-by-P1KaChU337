@@ -1,6 +1,6 @@
-chrome.storage.local.get("canVote", ({ canVote }) => {
-  if (!canVote) {
-    console.log("⏸ Автоматизация отключена — ждем следующего таймера.");
+chrome.storage.local.get(["canVote", "isPaused"], ({ canVote, isPaused }) => { // Добавлено isPaused
+  if (!canVote || isPaused) { // Блокируем, если не разрешено ИЛИ на паузе
+    console.log("⏸ Автоматизация отключена или остановлена — ждем следующего таймера.");
     return;
   }
 

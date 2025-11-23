@@ -2,14 +2,20 @@ const VOTE_URL = "https://minecraft-servers.ru/server/mcskill";
 const DAY_MS = 12 * 60 * 60 * 1000;
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("dailyVote", { periodInMinutes: 1 });
+  chrome.storage.local.set({ 
+    isPaused: false,
+    authType: 'manual'
+  }); 
+  chrome.alarms.create("dailyVote", { periodInMinutes: 60 });
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  chrome.storage.local.get(["lastVoteTime"], (data) => {
+  chrome.storage.local.get(["lastVoteTime", "isPaused"], (data) => {
     const now = Date.now();
     const last = data.lastVoteTime || 0;
-    if (now - last >= DAY_MS) {
+    const isPaused = data.isPaused || false;
+    
+    if (!isPaused && now - last >= DAY_MS) { 
       chrome.storage.local.set({ canVote: true });
     }
   });
@@ -25,14 +31,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "dailyVote") {
-    chrome.storage.local.get(["lastVoteTime"], (data) => {
+    chrome.storage.local.get(["lastVoteTime", "isPaused"], (data) => {
       const now = Date.now();
       const last = data.lastVoteTime || 0;
+      const isPaused = data.isPaused || false;
+
+      if (isPaused) {
+        console.log("Авто-голосование остановлено пользователем.");
+        return; 
+      }
 
       if (now - last >= DAY_MS) {
         chrome.storage.local.set({
-          lastVoteTime: now,
-          canVote: true // ⬅️ Дать разрешение на голосование
+          canVote: true
         });
         chrome.tabs.create({ url: VOTE_URL });
       } else {
